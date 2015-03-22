@@ -58,9 +58,25 @@ void SelectPipe::WaitUntilDone () {
 void SelectPipe::Use_n_Pages (int n) { 
 
 }
+///////////////////////////////////////////////////////////////////////////////////////////
+
+void *Run_Project(void *arg_in){
+	cout<<"Run_Project"<<endl;
+	thread_args_Project *arg = (thread_args_Project *)arg_in;
+	//Record *to_push = new Record();
+	Record *to_push = new Record();
+	
+	//arg->inFile->MoveFirst();
+	while(arg->inPipe->Remove(to_push) == 1){
+		to_push->Project(arg->keepMe, arg->numAttsOutput, arg->numAttsInput);
+		arg->outPipe->Insert(to_push);	
+	}
+	arg->outPipe->ShutDown();
+}
 
 void Project::Run (Pipe &inPipe, Pipe &outPipe, int *keepMe, int numAttsInput, int numAttsOutput) { 
-
+	thread_args_Project t_args = {&inPipe, &outPipe, keepMe, numAttsInput, numAttsOutput};
+    pthread_create(&thread,NULL,Run_Project,(void *)&t_args);
 }
 	
 void Project::WaitUntilDone () { 
@@ -71,6 +87,7 @@ void Project::WaitUntilDone () {
 void Project::Use_n_Pages (int n) { 
 
 }
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Join::Run (Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp, Record &literal) { 
 

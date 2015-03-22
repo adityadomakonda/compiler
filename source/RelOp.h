@@ -63,6 +63,15 @@ class Project : public RelationalOp {
 	void WaitUntilDone ();
 	void Use_n_Pages (int n);
 };
+
+typedef struct {
+	Pipe *inPipe;
+	Pipe *outPipe;
+	int *keepMe;
+	int numAttsInput;
+	int numAttsOutput; 
+} thread_args_Project;
+
 class Join : public RelationalOp { 
 	private:
 	pthread_t thread;
