@@ -31,10 +31,10 @@ class SelectFile : public RelationalOp {
 };
 
 typedef struct {
-	DBFile &inFile;
-	Pipe &outPipe;
-	CNF &selOp; 
-	Record &literal;
+	DBFile *inFile;
+	Pipe *outPipe;
+	CNF *selOp; 
+	Record *literal;
 } thread_args_SelectFile;
 
 class SelectPipe : public RelationalOp {

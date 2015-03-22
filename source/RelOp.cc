@@ -13,7 +13,7 @@ void *Run_SelectFile(void *arg_in){
 
 void SelectFile::Run (DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal) {
 
-    thread_args_SelectFile t_args = {inFile, outPipe, selOp, literal};
+    thread_args_SelectFile t_args = {&inFile, &outPipe, &selOp, &literal};
     pthread_create(&thread,NULL,Run_SelectFile,(void *)&t_args);
     return;
 }
