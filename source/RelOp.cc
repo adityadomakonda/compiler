@@ -3,11 +3,13 @@
 void *Run_SelectFile(void *arg_in){
 	cout<<"Run_SelectFile"<<endl;
 	thread_args_SelectFile *arg = (thread_args_SelectFile *)arg_in;
-	Record *to_push = new Record();
+	//Record *to_push = new Record();
+	Record *to_push;
 	arg->inFile->MoveFirst();
 	while(arg->inFile->GetNext(*to_push,*arg->selOp,*arg->literal) == 1){
 		arg->outPipe->Insert(to_push);
 	}
+	arg->outPipe->ShutDown();
 }
 
 void SelectFile::Run (DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal) {
@@ -25,9 +27,27 @@ void SelectFile::WaitUntilDone () {
 void SelectFile::Use_n_Pages (int runlen) {
 
 }
+///////////////////////////////////////////////////////////////////////////////////////
+
+void *Run_SelectPipe(void *arg_in){
+	cout<<"Run_SelectPipe"<<endl;
+	thread_args_SelectPipe *arg = (thread_args_SelectPipe *)arg_in;
+	//Record *to_push = new Record();
+	Record *to_push = new Record();
+	ComparisonEngine* comp = new ComparisonEngine();
+	//arg->inFile->MoveFirst();
+	while(arg->inPipe->Remove(to_push) == 1){
+		if (comp->Compare (to_push, arg->literal, arg->selOp)){
+			arg->outPipe->Insert(to_push);
+		}
+	}
+	arg->outPipe->ShutDown();
+}
 
 void SelectPipe::Run (Pipe &inPipe, Pipe &outPipe, CNF &selOp, Record &literal) { 
-
+	thread_args_SelectPipe t_args = {&inPipe, &outPipe, &selOp, &literal};
+    pthread_create(&thread,NULL,Run_SelectPipe,(void *)&t_args);
+    return;
 }
 
 void SelectPipe::WaitUntilDone () { 

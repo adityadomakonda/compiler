@@ -46,6 +46,14 @@ class SelectPipe : public RelationalOp {
 	void WaitUntilDone ();
 	void Use_n_Pages (int n);
 };
+
+typedef struct {
+	Pipe *inPipe;
+	Pipe *outPipe;
+	CNF *selOp; 
+	Record *literal;
+} thread_args_SelectPipe;
+
 class Project : public RelationalOp { 
 	private:
 	pthread_t thread;
