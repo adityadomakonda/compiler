@@ -69,14 +69,6 @@ OrderMaker :: OrderMaker() {
 	numAtts = 0;
 }
 
-OrderMaker :: OrderMaker(int num_att,int* atts, Type* types){
-	numAtts = num_att;
-	for(int i=0;i<numAtts;i++){
-		whichAtts[i] = atts[i];
-		whichTypes[i] = types[i];	
-	}
-}
-
 OrderMaker :: OrderMaker(Schema *schema) {
 	numAtts = 0;
 
@@ -124,7 +116,6 @@ void OrderMaker :: Print () {
 			printf("String\n");
 	}
 }
-
 
 
 int CNF :: GetSortOrders (OrderMaker &left, OrderMaker &right) {
@@ -183,7 +174,6 @@ int CNF :: GetSortOrders (OrderMaker &left, OrderMaker &right) {
 	}
 	
 	return left.numAtts;
-
 }
 
 

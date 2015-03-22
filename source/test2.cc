@@ -1,4 +1,4 @@
-#include "test.h"
+#include "test2.h"
 #include "BigQ.h"
 #include <pthread.h>
 void test1 ();

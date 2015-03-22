@@ -6,7 +6,7 @@
 #include "File.h"
 #include "Comparison.h"
 #include "ComparisonEngine.h"
-
+#include <stdlib.h>
 
 // This stores an individual comparison that is part of a CNF
 class Comparison {
@@ -42,23 +42,23 @@ class OrderMaker {
 
 	friend class ComparisonEngine;
 	friend class CNF;
+
 public:
+
 	int numAtts;
 
 	int whichAtts[MAX_ANDS];
 	Type whichTypes[MAX_ANDS];
 
-//public:
 	
+
 	// creates an empty OrdermMaker
 	OrderMaker();
 
 	// create an OrderMaker that can be used to sort records
 	// based upon ALL of their attributes
 	OrderMaker(Schema *schema);
-	
 
-	OrderMaker(int num_att,int* atts, Type* types);
 	// print to the screen
 	void Print ();
 };
