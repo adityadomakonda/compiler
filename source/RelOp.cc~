@@ -94,7 +94,7 @@ void GroupBy::WaitUntilDone () {
 	return;
 }
 
-void GroupBy::Use_n_Pages (int n) { 
+void Use_n_Pages (int n) { 
 
 }
 
