@@ -3,12 +3,11 @@
 void *Run_SelectFile(void *arg_in){
 	cout<<"Run_SelectFile"<<endl;
 	thread_args_SelectFile *arg = (thread_args_SelectFile *)arg_in;
-	Record *to_push;
+	Record *to_push = new Record();
 	arg->inFile->MoveFirst();
-	while(arg->inFile->GetNext(to_push,arg->selOp,arg->literal) == 1){
+	while(arg->inFile->GetNext(*to_push,*arg->selOp,*arg->literal) == 1){
 		arg->outPipe->Insert(to_push);
 	}
-	return;
 }
 
 void SelectFile::Run (DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal) {
