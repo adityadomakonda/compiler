@@ -96,8 +96,8 @@ void *Run_Join(void *arg_in){
 	Record *left = new Record();
 	Record *right = new Record();
 	//Record dummy;
-	Pipe sorted_output_l;
-	Pipe sorted_output_r;
+	Pipe sorted_output_l(100);
+	Pipe sorted_output_r(100);
 	OrderMaker sort_order_right;
 	OrderMaker sort_order_left;
 	int order_possible;
