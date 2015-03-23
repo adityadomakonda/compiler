@@ -148,7 +148,7 @@ class WriteOut : public RelationalOp {
 
 typedef struct {
 	Pipe *inPipe;
-	File *outFile;
+	FILE *outFile;
 	Schema *mySchema;
 } thread_args_WriteOut;
 
