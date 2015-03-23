@@ -95,6 +95,7 @@ void *Run_Join(void *arg_in){
 	thread_args_Join *arg = (thread_args_Join *)arg_in;
 	Record *left = new Record();
 	Record *right = new Record();
+	int run_length = arg->run_length;
 	//Record dummy;
 	Pipe sorted_output_l(100);
 	Pipe sorted_output_r(100);
@@ -233,7 +234,7 @@ void *Run_Join(void *arg_in){
 }
 
 void Join::Run (Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp, Record &literal) { 
-	thread_args_Join t_args = {&inPipeL, &inPipeR, &outPipe, &selOp, &literal};
+	thread_args_Join t_args = {&inPipeL, &inPipeR, &outPipe, &selOp, &literal, run_length};
     pthread_create(&thread,NULL,Run_Join,(void *)&t_args);
 }
 

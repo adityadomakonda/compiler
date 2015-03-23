@@ -8,7 +8,7 @@
 
 class RelationalOp {
 	public:
-	//int run_length;
+	int run_length;
 	// blocks the caller until the particular relational operator 
 	// has run to completion
 	virtual void WaitUntilDone () = 0;
@@ -76,7 +76,7 @@ typedef struct {
 class Join : public RelationalOp { 
 	private:
 	pthread_t thread;
-	int run_length;
+	//int run_length;
 		
 	public:
 	void Run (Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp, Record &literal);
@@ -90,6 +90,7 @@ typedef struct {
 	Pipe *outPipe;
 	CNF *selOp;
 	Record *literal; 
+	int run_length;
 } thread_args_Join;
 
 class DuplicateRemoval : public RelationalOp {
