@@ -326,7 +326,7 @@ void *Run_Sum(void *arg_in){
 
     if(Int == res_type)
     	sprintf(att_val, "%d|\0", int_sum);
-    else if(Double == ret_val)
+    else if(Double == res_type)
      	sprintf(att_val, "%f|\0", double_sum);
 
     rec_to_write->ComposeRecord(&sum_schema, att_val);
