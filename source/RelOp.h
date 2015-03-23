@@ -102,6 +102,14 @@ class DuplicateRemoval : public RelationalOp {
 	void WaitUntilDone ();
 	void Use_n_Pages (int n);
 };
+
+typedef struct {
+	Pipe *inPipe;
+	Pipe *outPipe;
+	Schema *mySchema;
+	int run_length;
+} thread_args_DuplicateRemoval;
+
 class Sum : public RelationalOp {
 	private:
 	pthread_t thread;

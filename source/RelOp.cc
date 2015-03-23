@@ -26,7 +26,7 @@ void SelectFile::WaitUntilDone () {
 }
 
 void SelectFile::Use_n_Pages (int runlen) {
-
+	run_length = n;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,7 @@ void SelectPipe::WaitUntilDone () {
 }
 
 void SelectPipe::Use_n_Pages (int n) { 
-
+	run_length = n;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -86,7 +86,7 @@ void Project::WaitUntilDone () {
 }
 
 void Project::Use_n_Pages (int n) { 
-
+	run_length = n;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -248,8 +248,34 @@ void Join::Use_n_Pages (int n) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-void DuplicateRemoval::Run (Pipe &inPipe, Pipe &outPipe, Schema &mySchema) { 
 
+void *Run_DuplicateRemoval(void *arg_in){
+	cout<<"Run_DuplicateRemoval"<<endl;
+	thread_args_DuplicateRemoval *arg = (thread_args_DuplicateRemoval *)arg_in;
+	OrderMaker sort_order(arg->mySchema);
+	Pipe sorted_output(100);
+	int run_length = arg->run_length;
+	BigQ bq(*arg->inPipe, sorted_output, sort_order, run_length);
+	Record *last_added;
+	Record *cur;
+	sorted_output.Remove(cur);
+	last_added = cur;
+	arg->outPipe->Insert(cur);
+	ComparisonEngine ce;
+	while(sorted_output.Remove(cur)){
+		int comp_val = ce.Compare(last_added,cur, &sort_order);
+		if(comp_val != 0){
+			last_added = cur;
+			arg->outPipe->Insert(cur);
+		}
+	}
+
+	arg->outPipe->ShutDown();
+}
+
+void DuplicateRemoval::Run (Pipe &inPipe, Pipe &outPipe, Schema &mySchema) { 
+	thread_args_DuplicateRemoval t_args = {&inPipe, &outPipe, &mySchema, run_length};
+    pthread_create(&thread,NULL,Run_DuplicateRemoval,(void *)&t_args);
 }
 
 void DuplicateRemoval::WaitUntilDone () { 
