@@ -257,15 +257,18 @@ void *Run_DuplicateRemoval(void *arg_in){
 	int run_length = arg->run_length;
 	BigQ bq(*arg->inPipe, sorted_output, sort_order, run_length);
 	Record *last_added;
+	last_added = new Record();
 	Record *cur;
 	sorted_output.Remove(cur);
-	last_added = cur;
+	last_added->Copy(cur);
 	arg->outPipe->Insert(cur);
 	ComparisonEngine ce;
 	while(sorted_output.Remove(cur)){
 		int comp_val = ce.Compare(last_added,cur, &sort_order);
 		if(comp_val != 0){
-			last_added = cur;
+			delete last_added;
+			last_added = new Record();
+			last_added->Copy(cur);
 			arg->outPipe->Insert(cur);
 		}
 	}
@@ -284,12 +287,58 @@ void DuplicateRemoval::WaitUntilDone () {
 }
 
 void DuplicateRemoval::Use_n_Pages (int n) { 
-
+	run_length = n;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-void Sum::Run (Pipe &inPipe, Pipe &outPipe, Function &computeMe) { 
 
+void *Run_Sum(void *arg_in){
+	cout<<"Run_Sum"<<endl;
+	thread_args_Sum *arg = (thread_args_Sum *)arg_in;
+	Record read_from_pipe;
+  	int int_sum = 0;
+  	double double_sum = 0;
+  	Type   res_type = Int;
+  	int int_res = 0; 
+  	double double_res = 0;
+  	//bool r = 0;
+
+  	while(arg->inPipe->Remove(&read_from_pipe)){
+    	res_type = arg->computeMe->Apply(read_from_pipe, int_res, double_res);
+    	if(Int == res_type)
+      		int_sum += int_res;
+    	else if(Double == res_type)
+      		double_sum += double_res;
+    	else 
+      		cout<<"Error in result return type from Apply 	RelOp.cc"<<endl;
+  	}
+
+  	Record *rec_to_write = new Record();
+    char att_name[10];
+    char schema_name[20];
+    char att_val[128];
+
+    sprintf(att_name, "sum\0");
+    sprintf(schema_name, "sum_schema\0");
+
+    Attribute att = {att_name, res_type};
+    Schema sum_schema(schema_name, 1, &att);
+
+    if(Int == res_type)
+    	sprintf(att_val, "%d|\0", int_sum);
+    else if(Double == ret_val)
+     	sprintf(att_val, "%f|\0", double_sum);
+
+    rec_to_write->ComposeRecord(&sum_schema, att_val);
+    arg->outPipe->Insert(rec_to_write);
+    delete rec_to_write;
+
+	arg->outPipe->ShutDown();
+}
+
+void Sum::Run (Pipe &inPipe, Pipe &outPipe, Function &computeMe) { 
+	thread_args_Sum t_args = {&inPipe, &outPipe, &computeMe};
+    pthread_create(&thread,NULL,Run_Sum,(void *)&t_args);
 }
 
 void Sum::WaitUntilDone () { 

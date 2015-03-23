@@ -119,6 +119,13 @@ class Sum : public RelationalOp {
 	void WaitUntilDone ();
 	void Use_n_Pages (int n);
 };
+
+typedef struct {
+	Pipe *inPipe;
+	Pipe *outPipe;
+	Function *computeMe;
+} thread_args_Sum;
+
 class GroupBy : public RelationalOp {
 	private:
 	pthread_t thread;
