@@ -26,7 +26,7 @@ void SelectFile::WaitUntilDone () {
 }
 
 void SelectFile::Use_n_Pages (int runlen) {
-	run_length = n;
+	run_length = runlen;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 
