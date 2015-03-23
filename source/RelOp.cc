@@ -107,8 +107,8 @@ void *Run_Join(void *arg_in){
 	if(order_possible != 0){
 		// do sort merge
 		cout<<"Sort Merge possible in join    RelOp.cc"<<endl;
-		BigQ left(*arg->inPipeL, sorted_output_l, sort_order_left, run_length);
-		BigQ right(*arg->inPipeR, sorted_output_r, sort_order_right, run_length);
+		BigQ bq_left(*arg->inPipeL, sorted_output_l, sort_order_left, run_length);
+		BigQ bq_right(*arg->inPipeR, sorted_output_r, sort_order_right, run_length);
 		if(sorted_output_l.Remove(left) == 0){
 			cout<<"Left Pipe is empty"<<endl;
 			loop_var = 0;
@@ -117,8 +117,8 @@ void *Run_Join(void *arg_in){
 			cout<<"Right Pipe is empty"<<endl;
 			loop_var = 0;
 		}
-		int *left_bits = (int *)left.bits;
-		int *right_bits = (int *)right.bits;
+		int *left_bits = (int *)left->bits;
+		int *right_bits = (int *)right->bits;
 		int num_atts_left = (left_bits[1] - 1)/4;
 		int num_atts_right = (right_bits[1] - 1)/4;
 		cout << "num_atts_left = "<<num_atts_left<<"	num_atts_right = "<<num_atts_right<<endl;
@@ -204,8 +204,8 @@ void *Run_Join(void *arg_in){
 			while(temp_file.GetNext(*temp_merge)){
 				
 				if(extract_info_flag == 1){
-					int *left_bits = (int *)left.bits;
-					int *right_bits = (int *)*temp_merge.bits;
+					int *left_bits = (int *)left->bits;
+					int *right_bits = (int *)temp_merge->bits;
 					num_atts_left = (left_bits[1] - 1)/4;
 					num_atts_right = (right_bits[1] - 1)/4;
 					cout << "num_atts_left = "<<num_atts_left<<"	num_atts_right = "<<num_atts_right<<endl;
