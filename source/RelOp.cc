@@ -347,7 +347,7 @@ void Sum::WaitUntilDone () {
 }
 
 void Sum::Use_n_Pages (int n) { 
-
+	run_length = n;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -361,12 +361,26 @@ void GroupBy::WaitUntilDone () {
 }
 
 void GroupBy::Use_n_Pages (int n) { 
-
+	run_length = n;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-void WriteOut::Run (Pipe &inPipe, FILE *outFile, Schema &mySchema) { 
 
+
+void *Run_WriteOut(void *arg_in){
+	cout<<"Run_WriteOut"<<endl;
+	thread_args_WriteOut *arg = (thread_args_WriteOut *)arg_in;
+	//Record *to_push = new Record();
+	Record *to_push = new Record();
+	
+	while(arg->inPipe->Remove(to_push) == 1){
+		to_push->PrintToFile(arg->mySchema, arg->outFile);	
+	}
+}
+
+void WriteOut::Run (Pipe &inPipe, FILE *outFile, Schema &mySchema) { 
+	thread_args_WriteOut t_args = {&inPipe, outFile, &mySchema};
+    pthread_create(&thread,NULL,Run_WriteOut,(void *)&t_args);
 }
 
 void WriteOut::WaitUntilDone () { 
@@ -375,5 +389,5 @@ void WriteOut::WaitUntilDone () {
 }
 
 void WriteOut::Use_n_Pages (int n) { 
-
+	run_length = n;
 }

@@ -68,6 +68,9 @@ public:
 	// prints the contents of the record; this requires
 	// that the schema also be given so that the record can be interpreted
 	void Print (Schema *mySchema);
+
+	// prints to the file given in argument. Same as above Print
+	void PrintToFile (Schema *mySchema, FILE *outFile);
 };
 
 #endif

@@ -135,6 +135,7 @@ class GroupBy : public RelationalOp {
 	void WaitUntilDone ();
 	void Use_n_Pages (int n);
 };
+
 class WriteOut : public RelationalOp {
 	private:
 	pthread_t thread;
@@ -144,4 +145,11 @@ class WriteOut : public RelationalOp {
 	void WaitUntilDone ();
 	void Use_n_Pages (int n);
 };
+
+typedef struct {
+	Pipe *inPipe;
+	File *outFile;
+	Schema *mySchema;
+} thread_args_WriteOut;
+
 #endif
