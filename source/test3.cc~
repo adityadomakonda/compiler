@@ -56,6 +56,7 @@ int rAtts = 3;
 
 void init_SF_ps (char *pred_str, int numpgs) {
 	dbf_ps.Open (ps->path());
+	cout << "file length in pages init_SF_ps: " << dbf_ps.file.GetLength() << endl;
 	get_cnf (pred_str, ps->schema (), cnf_ps, lit_ps);
 	SF_ps.Use_n_Pages (numpgs);
 }
@@ -360,7 +361,7 @@ possible plan:
 int main (int argc, char *argv[]) {
 
 	if (argc != 2) {
-		cerr << " Usage: ./test.out [1-8] \n";
+		cerr << " Usage: ./test3 [1-8] \n";
 		exit (0);
 	}
 

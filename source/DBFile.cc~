@@ -131,7 +131,6 @@ int DBFile::Open (char *f_path) {
 
 void DBFile::MoveFirst () {
 	//Page *first_page;
-	cout << "file length in pages Movefirst: " << file.GetLength() << endl;
 	if(operation_state == writing){
 		if(type == heap)
 			WriteBufferToDisk();
