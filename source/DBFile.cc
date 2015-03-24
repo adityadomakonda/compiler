@@ -332,6 +332,7 @@ int DBFile::sort_merge(){
 }
 
 int DBFile::GetNext (Record &fetchme) {
+	cout<<"GetNext called DBFIle.cc Getnext"<<endl;
 	if(operation_state == writing){
 		if(type == heap)
 			WriteBufferToDisk();
@@ -375,7 +376,7 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
 			}	
 		}
 		else{
-			std::cout<< "Found Last one" << endl;
+			std::cout<< "Found Last one  DBFile.cc GetNext" << endl;
 			return 0;
 		}
 	}
