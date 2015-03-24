@@ -354,7 +354,7 @@ void Sum::Use_n_Pages (int n) {
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void composeRecordForSum(Record *sum_record,Type &res_type,int &int_sum, double &double_sum){
-	Record *sum_record = new Record();
+	//Record *sum_record = new Record();
     char att_name[10];
 	char schema_name[20];
 	char att_val[128];
