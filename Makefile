@@ -16,6 +16,10 @@ test2: Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o 
 test1: Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o test1.o
 	$(CC) -o bin/test1 Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o test1.o -lfl -lpthread
 
+
+test: Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o test_1.o
+	$(CC) -o bin/test Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o test_1.o -lfl -lpthread
+
 a1test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o Pipe.o y.tab.o lex.yy.o a1-test.o
 	$(CC) -o a1test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o Pipe.o y.tab.o lex.yy.o a1-test.o -lfl
 
@@ -28,8 +32,8 @@ test1.o: source/test1.cc
 test2.o: source/test2.cc
 	$(CC) -g -c source/test2.cc
 
-a1-test.o: a1-test.cc
-	$(CC) -g -c a1-test.cc
+test_1.o: source/test_1.cc
+	$(CC) -g -c source/test_1.cc
 
 Comparison.o: source/Comparison.cc
 	$(CC) -g -c source/Comparison.cc
