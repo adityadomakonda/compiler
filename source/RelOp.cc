@@ -464,7 +464,7 @@ void *Run_GroupBy(void *arg_in){
 }
 
 void GroupBy::Run (Pipe &inPipe, Pipe &outPipe, OrderMaker &groupAtts, Function &computeMe) { 
-	thread_args_GroupBy t_args = {&inPipe, &outPipe, &groupAtts,run_length};
+	thread_args_GroupBy t_args = {&inPipe, &outPipe, &groupAtts, &computeMe, run_length};
     pthread_create(&thread,NULL,Run_GroupBy,(void *)&t_args);
 }
 
