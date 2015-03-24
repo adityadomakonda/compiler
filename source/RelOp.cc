@@ -403,7 +403,7 @@ void *Run_GroupBy(void *arg_in){
 	
 	Pipe sorted_input(100);
 	//OrderMaker sort_order(arg->mySchema);
-	BigQ bq(*arg->inPipe, sorted_input, arg->groupAtts, arg->run_length);
+	BigQ bq(*arg->inPipe, sorted_input, *arg->groupAtts, arg->run_length);
 	// Read one record and initialze variables
 	Record *last_seen;
 	last_seen = new Record();
@@ -419,7 +419,7 @@ void *Run_GroupBy(void *arg_in){
   	int int_res = 0; 
   	double double_res = 0;
 
-	while(sorted_input->Remove(cur) == 1){
+	while(sorted_input.Remove(cur) == 1){
 		// aggregate while same. So use sum code while same. Reset sum vars when new group is found and start over.
 		int comp_val = ce.Compare(last_seen,cur, arg->groupAtts);
 		if(comp_val == 0){
