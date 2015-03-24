@@ -402,8 +402,8 @@ void *Run_GroupBy(void *arg_in){
 	thread_args_GroupBy *arg = (thread_args_GroupBy *)arg_in;
 	
 	Pipe sorted_input(100);
-	OrderMaker sort_order(arg->mySchema);
-	BigQ bq(*arg->inPipe, sorted_input, sort_order, arg->run_length);
+	//OrderMaker sort_order(arg->mySchema);
+	BigQ bq(*arg->inPipe, sorted_input, arg->groupAtts, arg->run_length);
 	// Read one record and initialze variables
 	Record *last_seen;
 	last_seen = new Record();
@@ -421,7 +421,7 @@ void *Run_GroupBy(void *arg_in){
 
 	while(sorted_input->Remove(cur) == 1){
 		// aggregate while same. So use sum code while same. Reset sum vars when new group is found and start over.
-		int comp_val = ce.Compare(last_seen,cur, &sort_order);
+		int comp_val = ce.Compare(last_seen,cur, arg->groupAtts);
 		if(comp_val == 0){
 			// records are same according to ordermaker so compute sum
 			res_type = arg->computeMe->Apply(*cur, int_res, double_res);
@@ -451,7 +451,8 @@ void *Run_GroupBy(void *arg_in){
 	// Push the left over sum to pipe
 	Record *sum_record = new Record();
     composeRecordForSum(sum_record, res_type, int_sum, double_sum); // Composes the new record and resets the sum the variables to 0		    Record *rec_to_push = new Record();
-	 MergeRecordsToPush(rec_to_push,sum_record,last_seen);
+	Record *rec_to_push = new Record();
+	MergeRecordsToPush(rec_to_push,sum_record,last_seen);
 	arg->outPipe->Insert(rec_to_push);
 	delete rec_to_push;
 	delete sum_record; // move this right location: Note to self
@@ -463,7 +464,7 @@ void *Run_GroupBy(void *arg_in){
 }
 
 void GroupBy::Run (Pipe &inPipe, Pipe &outPipe, OrderMaker &groupAtts, Function &computeMe) { 
-	thread_args_GroupBy t_args = {&inPipe, &outPipe, &groupAtts, &mySchema,run_length};
+	thread_args_GroupBy t_args = {&inPipe, &outPipe, &groupAtts,run_length};
     pthread_create(&thread,NULL,Run_GroupBy,(void *)&t_args);
 }
 
