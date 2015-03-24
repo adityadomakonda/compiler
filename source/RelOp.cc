@@ -11,7 +11,8 @@ void *Run_SelectFile(void *arg_in){
 		arg->outPipe->Insert(to_push);
 		cout<<"Pushed Rec into Pipe   RelOp.cc SelectFile"<<endl;
 	}
-	arg->outPipe->ShutDown();
+	
+	//arg->outPipe->ShutDown();
 }
 
 void SelectFile::Run (DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal) {
