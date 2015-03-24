@@ -259,6 +259,7 @@ void *Run_DuplicateRemoval(void *arg_in){
 	Record *last_added;
 	last_added = new Record();
 	Record *cur;
+	cur = new Record();
 	sorted_output.Remove(cur);
 	last_added->Copy(cur);
 	arg->outPipe->Insert(cur);
@@ -351,8 +352,119 @@ void Sum::Use_n_Pages (int n) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-void GroupBy::Run (Pipe &inPipe, Pipe &outPipe, OrderMaker &groupAtts, Function &computeMe) { 
 
+void composeRecordForSum(Record *sum_record,Type &res_type,int &int_sum, double &double_sum){
+	Record *sum_record = new Record();
+    char att_name[10];
+	char schema_name[20];
+	char att_val[128];
+    sprintf(att_name, "sum\0");
+    sprintf(schema_name, "sum_schema\0");
+    Attribute att = {att_name, res_type};
+    Schema sum_schema(schema_name, 1, &att);
+    if(Int == res_type)
+    	sprintf(att_val, "%d|\0", int_sum);
+    else if(Double == res_type)
+     	sprintf(att_val, "%f|\0", double_sum);
+    sum_record->ComposeRecord(&sum_schema, att_val);
+    //reset values for next call
+    res_type = Int;
+    int_sum = 0;
+    double_sum = 0;
+}
+
+void MergeRecordsToPush(Record *rec_to_push, Record *left, Record *right){
+	int num_atts_left;
+	int num_atts_right;
+	//cout << "num_atts_left = "<<num_atts_left<<"	num_atts_right = "<<num_atts_right<<endl;
+	int num_atts_to_keep;
+	int start_of_right;
+	int *atts_to_keep;
+
+	int *left_bits = (int *)left->bits;
+	int *right_bits = (int *)right->bits;
+	num_atts_left = (left_bits[1] - 1)/4;
+	num_atts_right = (right_bits[1] - 1)/4;
+	cout << "num_atts_left = "<<num_atts_left<<"	num_atts_right = "<<num_atts_right<<endl;
+	num_atts_to_keep = num_atts_left + num_atts_right;
+	start_of_right = num_atts_left;
+	atts_to_keep = new int[num_atts_to_keep];
+	for(int i=0;i<num_atts_left;i++)
+		atts_to_keep[i] = i;
+	for(int i = num_atts_left;i<num_atts_to_keep;i++)
+		atts_to_keep[i] = i;
+
+	rec_to_push->MergeRecords(left, right, num_atts_left, num_atts_right, atts_to_keep, num_atts_to_keep, start_of_right);
+}
+
+void *Run_GroupBy(void *arg_in){
+	cout<<"Run_GroupBy"<<endl;
+	thread_args_GroupBy *arg = (thread_args_GroupBy *)arg_in;
+	
+	Pipe sorted_input(100);
+	OrderMaker sort_order(arg->mySchema);
+	BigQ bq(*arg->inPipe, sorted_input, sort_order, arg->run_length);
+	// Read one record and initialze variables
+	Record *last_seen;
+	last_seen = new Record();
+	Record *cur;
+	cur = new Record();
+	sorted_input.Remove(cur);
+	last_seen->Copy(cur);
+	ComparisonEngine ce;
+	// Initialize group sums
+	int int_sum = 0;
+  	double double_sum = 0;
+  	Type   res_type = Int;
+  	int int_res = 0; 
+  	double double_res = 0;
+
+	while(sorted_input->Remove(cur) == 1){
+		// aggregate while same. So use sum code while same. Reset sum vars when new group is found and start over.
+		int comp_val = ce.Compare(last_seen,cur, &sort_order);
+		if(comp_val == 0){
+			// records are same according to ordermaker so compute sum
+			res_type = arg->computeMe->Apply(*cur, int_res, double_res);
+	    	if(Int == res_type)
+	      		int_sum += int_res;
+	    	else if(Double == res_type)
+	      		double_sum += double_res;
+	    	else 
+	      		cout<<"Error in result return type from Apply 	RelOp.cc GroupBy"<<endl;
+		}
+		else{
+			// write previous sum to record. Merge sum rec with lastseen record. Push this merged record to outPipe. Update last seen and reset sum vaiables
+
+			Record *sum_record = new Record();
+		    composeRecordForSum(sum_record, res_type, int_sum, double_sum); // Composes the new record and resets the sum the variables to 0
+		    Record *rec_to_push = new Record();
+		    MergeRecordsToPush(rec_to_push,sum_record,last_seen);
+		    arg->outPipe->Insert(rec_to_push);
+		    delete rec_to_push;
+		    delete sum_record; // move this right location: Note to self
+		    delete last_seen; // Update last seen
+			last_seen = new Record();
+			last_seen->Copy(cur);
+
+		}
+	}
+	// Push the left over sum to pipe
+	Record *sum_record = new Record();
+    composeRecordForSum(sum_record, res_type, int_sum, double_sum); // Composes the new record and resets the sum the variables to 0		    Record *rec_to_push = new Record();
+	 MergeRecordsToPush(rec_to_push,sum_record,last_seen);
+	arg->outPipe->Insert(rec_to_push);
+	delete rec_to_push;
+	delete sum_record; // move this right location: Note to self
+	delete last_seen; // Update last seen
+
+
+	// write previous sum to record. Merge sum rec with lastseen record. Push this merged record to outPipe
+	arg->outPipe->ShutDown();
+}
+
+void GroupBy::Run (Pipe &inPipe, Pipe &outPipe, OrderMaker &groupAtts, Function &computeMe) { 
+	thread_args_GroupBy t_args = {&inPipe, &outPipe, &groupAtts, &mySchema,run_length};
+    pthread_create(&thread,NULL,Run_GroupBy,(void *)&t_args);
 }
 
 void GroupBy::WaitUntilDone () { 

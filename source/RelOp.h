@@ -136,6 +136,14 @@ class GroupBy : public RelationalOp {
 	void Use_n_Pages (int n);
 };
 
+typedef struct {
+	Pipe *inPipe;
+	Pipe *outPipe;
+	OrderMaker *groupAtts;
+	Function *computeMe;
+	int run_length;
+} thread_args_GroupBy;
+
 class WriteOut : public RelationalOp {
 	private:
 	pthread_t thread;
