@@ -111,6 +111,7 @@ int DBFile::Open (char *f_path) {
 		
 	meta_read_file >> type_in;
 	if(type_in=='s'){
+		cout << "file length in pages:   " << file.GetLength()<<"  SORTED ! in func open at bottom   DBFile.cc" << endl;	
 		type = sorted;
 		order = new OrderMaker();
 		meta_read_file >> order->numAtts;
@@ -253,8 +254,10 @@ int DBFile::sort_merge(){
 	else {
 	// move current file to start
 	operation_state = reading;
-	temp_file.MoveFirst();	
+	//temp_file.MoveFirst();	
+	//cout << "temp_file move first done" << endl;	
 	MoveFirst();
+	cout << "current file move first done" << endl;
 	Record pipe_rec, file_rec;
 	int file_empty_flag = 1;
 	ComparisonEngine comp_eng;

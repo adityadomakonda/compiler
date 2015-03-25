@@ -16,20 +16,25 @@ void SelectFile::Run (DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal
 
 void * SelectFile::callinThread(void *arg){
 	SelectFile *current;
+	cout<< "SelectFile start"<<endl;	
 	current = (SelectFile *)arg;
 	Record fetchme;
 	current->input->MoveFirst();
 	while(current->input->GetNext(fetchme, *current->cnf, *current->record)){
 	//cout << "Inside while loop before pipe" << endl;
 		current->output->Insert(&fetchme);
+		//cout<<"Sf";
 	//cout << "Inside while loop after pipe" << endl;			
 	}
 	current->output->ShutDown();
+	cout<< "SelectFile end"<<endl;
 }
 
 
 void SelectFile::WaitUntilDone () {
+	cout<< "SelectFile waitingfor join"<<endl;
 	pthread_join (thread, NULL);
+	cout<< "SelectFile Joined"<<endl;
 }
 
 void SelectFile::Use_n_Pages (int runlen) {
@@ -48,19 +53,29 @@ void SelectPipe::Run (Pipe &inPipe, Pipe &outPipe, CNF &selOp, Record &literal) 
 } 
 
 void * SelectPipe::callinThread(void *arg){
+	cout<< "SelectPipe start"<<endl;	
 	SelectPipe *current;
 	current = (SelectPipe *)arg;
 	Record inRecord;
 	ComparisonEngine comp;
 	while(current->input->Remove(&inRecord)){
-		if(comp.Compare(&inRecord,current->record,current->cnf))
+		if(comp.Compare(&inRecord,current->record,current->cnf)){
 			current->output->Insert(&inRecord);
+			cout<< "Sp";	
+			
+		}
 	}
 	current->output->ShutDown();
+	cout<< "SelectPipe end"<<endl;	
+	
 }
 
 void SelectPipe::WaitUntilDone () {
+	cout<< "SelectPipe wating for threadto join"<<endl;	
+	
 	pthread_join (thread, NULL);
+	cout<< "SelectPipe thread joined"<<endl;	
+	
 }
 
 void SelectPipe::Use_n_Pages (int n) {
@@ -79,18 +94,29 @@ void Project::Run (Pipe &inPipe, Pipe &outPipe, int *keepMe, int numAttsInput, i
 }
 
 void* Project::callinThread(void* arg){
+	cout<< "Project start"<<endl;	
+	int count = 0;
 	Project *current;
 	current = (Project *)arg;
 	Record inRecord;
 	while(current->input->Remove(&inRecord)){
 		inRecord.Project(current->attrOrder,current->OutputAtts, current->InputAtts);
 		current->output->Insert(&inRecord);
+		//cout<<"p";
+		count ++;
 	}
+	cout << "number of records projected into the pipe: " << count << endl;
 	current->output->ShutDown();
+	cout<< "project end"<<endl;	
+	
 }
 
 void Project::WaitUntilDone () { 
+	cout<< "project waiting for thrad join"<<endl;	
+		
 	pthread_join (thread, NULL);
+	cout<< "project thread joined"<<endl;	
+	
 }
 void Project::Use_n_Pages (int n) {
 }
@@ -106,32 +132,47 @@ void DuplicateRemoval::Run (Pipe &inPipe, Pipe &outPipe, Schema &mySchema){
 }
 
 void* DuplicateRemoval::callinThread(void* arg){
+	cout << "entered duplicate removal - thread" << endl;
+	int count = 0;
 	DuplicateRemoval *current;
 	current = (DuplicateRemoval *)arg;
 	OrderMaker *order = new OrderMaker(current->schema);
 	//buffersize 100
 	Pipe temp(100);
+	cout << "bigq in duplicate removal" << endl;
 	BigQ *bq = new BigQ(*current->input,temp,*order,current->runlength);
+	//BigQ bq(*current->input,temp,*order,current->runlength);
+	cout << "bigq in duplicate removal - done" << endl;	
 	Record *inRecord = new Record();
 	ComparisonEngine compare;
 	Record *previous = new Record();
 	//check for no records in Pipe
 	temp.Remove(previous);
+	//cout << " first record removed from temp in duplicate removal" << endl;
 	inRecord->Copy(previous);
 	current->output->Insert(previous);
+	count ++;
 	previous->Copy(inRecord);
 	while(temp.Remove(inRecord)){
 		 if(compare.Compare(previous,inRecord,order)!=0){
 			previous->Copy(inRecord);
 			current->output->Insert(inRecord);
+			//cout<<"u";
+			count ++;
 		}
+		cout<<"duplicate found";
 	}
 	//temp.ShutDown();
+	cout << "total distinct records: " << count << endl;
 	current->output->ShutDown();
 }
 
 void DuplicateRemoval::WaitUntilDone (){
+	cout<< "Duprem t j waiting"<<endl;	
+	
 	pthread_join (thread, NULL);
+	cout<< "Duprem t joined"<<endl;	
+	
 }
 
 void DuplicateRemoval::Use_n_Pages (int n){
@@ -147,7 +188,8 @@ void Sum::Run (Pipe &inPipe, Pipe &outPipe, Function &computeMe){
 }
 
 void* Sum::callinThread(void* arg){
-	Sum *current;
+	cout<<"Sum start"<<endl;	
+Sum *current;
 	current = (Sum *)arg;
 	Record inRecord;
 	int num = 0;
@@ -164,7 +206,7 @@ void* Sum::callinThread(void* arg){
 		else if(type == Double){
 			dblsum = dblsum+dbl;		
 		}
-	
+	cout<<"s";
 	}
 	if(type == Int){
 		Attribute aInt;
@@ -194,10 +236,14 @@ void* Sum::callinThread(void* arg){
 	}
 	current->output->Insert(&outRecord);
 	current->output->ShutDown();
+	cout<< "SUm end"<<endl;	
+	
 }
 
 void Sum::WaitUntilDone (){
+	cout<< "SUm  t j waiting"<<endl;	
 	pthread_join (thread, NULL);
+	cout<< "SUm t joined"<<endl;	
 }
 
 void Sum::Use_n_Pages (int n){
@@ -213,6 +259,7 @@ void GroupBy::Run (Pipe &inPipe, Pipe &outPipe, OrderMaker &groupAtts, Function 
 }
 
 void* GroupBy::callinThread(void* arg){
+	cout<< "GB start"<<endl;		
 	GroupBy *current;
 	current = (GroupBy *)arg;
 	Pipe temp(100);
@@ -229,6 +276,7 @@ void* GroupBy::callinThread(void* arg){
 	double dblsum = 0;
 	Record outRecord;
 	while(1){
+		cout<<"GB";
 		if(result == 0) break;
 
 		previous->Copy(inRecord);
@@ -280,11 +328,15 @@ void* GroupBy::callinThread(void* arg){
 		current->output->Insert(&outRecord);
 		numsum = 0; dblsum = 0;
 	}
-	current->output->ShutDown();	
+	current->output->ShutDown();
+	cout<< "GB end"<<endl;	
 		
 }
 
 void GroupBy::WaitUntilDone () {
+	cout<< "GB  t j waiting"<<endl;	
+	pthread_join (thread, NULL);
+	cout<< "GB t joined"<<endl;
 }
 
 void GroupBy::Use_n_Pages (int n) { 
@@ -327,8 +379,9 @@ void* Join::JoinThreadProcess(void* arg)
 	OrderMaker *orderLeft = new OrderMaker();
 	OrderMaker *orderRight = new OrderMaker();
 	
-	Pipe tmpPipeLeft(join->numOfPages);
-	Pipe tmpPipeRight(join->numOfPages);
+	Pipe tmpPipeLeft(100);
+	Pipe tmpPipeRight(100);
+	cout<<"Pipesize "<<join->numOfPages<<endl;
 
 	join->selectionOp->GetSortOrders(*orderLeft, *orderRight);
 	cout << "Got Sorted Orders\n";
@@ -420,9 +473,9 @@ void* Join::JoinThreadProcess(void* arg)
 				for(int j = 0; j < rightsimilar.size(); j++)
 				{
 					finRecord = new Record();
-					finRecord->MergeRecords(leftsimilar[i], rightsimilar[j], leftsimilar[i]->GetNumAtts(), rightsimilar[j]->GetNumAtts(), 
-							attsToKeep, rightsimilar[j]->GetNumAtts() + leftsimilar[i]->GetNumAtts(), leftsimilar[i]->GetNumAtts());
+					finRecord->MergeRecords(leftsimilar[i], rightsimilar[j], leftsimilar[i]->GetNumAtts(), rightsimilar[j]->GetNumAtts(), attsToKeep, rightsimilar[j]->GetNumAtts() + leftsimilar[i]->GetNumAtts(), leftsimilar[i]->GetNumAtts());
 					join->outP->Insert(finRecord);
+					cout<<"j";
 				}
 			}
 			leftsimilar.clear();
@@ -434,7 +487,7 @@ void* Join::JoinThreadProcess(void* arg)
 		else {
 			if(out < 0)
 			{
-				cout<<"inside less than\n";
+				//cout<<"inside less than\n";
 				if(tmpPipeLeft.Remove(leftRecord) == 0){ 
 					leftended = true;
 					break;
@@ -442,7 +495,7 @@ void* Join::JoinThreadProcess(void* arg)
 			}
 			else
 			{
-				cout<<"inside greater than\n";
+				//cout<<"inside greater than\n";
 				if(tmpPipeRight.Remove(rightRecord) == 0) 
 				{
 					rightended = true;
@@ -451,7 +504,7 @@ void* Join::JoinThreadProcess(void* arg)
 			}
 		}
 	}
-	cout << "End of the Function \n";
+	cout << "End of the Function join \n";
 	join->outP->ShutDown();
 	return NULL;
 }

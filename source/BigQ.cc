@@ -32,23 +32,29 @@ BigQ :: BigQ (Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen) {
     cmpr -> ce = new ComparisonEngine();*/
 
     //globalorder = &sortorder;
-
+    thread_args *tp = new (std::nothrow) thread_args;
+     tp->in = &in;
+     tp->out = &out;
+     tp->sortorder = &sortorder;
+     tp->runlen = runlen;
+     //g_sortOrder = &sortorder;
     pthread_t worker_thread;
-    thread_args t_args = {&in, &out, &sortorder, runlen, cmpr};
-    pthread_create(&worker_thread,NULL,sort_stuff,(void *)&t_args);
+    
+    /*thread_args t_args = {&in, &out, &sortorder, runlen, cmpr};*/
+    pthread_create(&worker_thread,NULL,sort_stuff,(void *)tp);
 	
     // construct priority queue over sorted runs and dump sorted data 
      // into the out pipe
-    pthread_join(worker_thread,NULL);
+    //pthread_join(worker_thread,NULL);
     // finally shut down the out pipe
-    out.ShutDown ();
+    //out.ShutDown ();
 }
 
 BigQ::~BigQ () {
 }
 
 void* sort_stuff( void *arg_in){
-    //cout<<"Inside bigq sort stuff"<<endl;
+    cout<<"Inside bigq sort stuff"<<endl;
     thread_args *arg = (thread_args *)arg_in;
     File file;
     char ext_file_path[300];
@@ -59,8 +65,10 @@ void* sort_stuff( void *arg_in){
     // write the path for where the external should be created
     string new_file_text = "sortingfile";
     new_file_text.append(random_num);
+    new_file_text.append(".txt");
     char *sorting_file = (char *)new_file_text.c_str();
     sprintf(ext_file_path,sorting_file);
+    cout <<"sorting file name: " << sorting_file << endl;
     file.Open(0,ext_file_path);
     Page buffer_page;
     
@@ -284,9 +292,10 @@ void* sort_stuff( void *arg_in){
                     cout << "ERROR loading record from new page"<< endl;
                 }        
             }
+//arg->out->ShutDown();
         }
     }
-//arg->out->ShutDown();
 file.Close();
+arg->out->ShutDown();
 //cout<<"BigQ work done"<<endl;
 }

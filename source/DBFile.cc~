@@ -84,7 +84,7 @@ void DBFile::Load (Schema &f_schema, char *loadpath) {
 
 int DBFile::Open (char *f_path) {
 	file.Open(1,f_path);
-	cout << "file length in pages: " << file.GetLength() << endl;
+	cout << "file length in pages:   " << file.GetLength()<<"  in func open at top   DBFile.cc" << endl;
 	operation_state = reading;
 	for(int k=0;k<100;k++){
 		file_path[k] = f_path[k];
@@ -123,14 +123,18 @@ int DBFile::Open (char *f_path) {
 			order->whichTypes[i] = static_cast <Type>(type);
 		}
 	}
-	else
+	else{
 		type = heap;
+		cout << "file length in pages:   " << file.GetLength()<<"  HEAP ! in func open at bottom   DBFile.cc" << endl;	
+	}
+		
 	
 	return 1;
 }
 
 void DBFile::MoveFirst () {
 	//Page *first_page;
+	cout << "file length in pages Movefirst: " << file.GetLength()<< "  at top of vun Movefirst " << endl;
 	if(operation_state == writing){
 		if(type == heap)
 			WriteBufferToDisk();
@@ -143,6 +147,7 @@ void DBFile::MoveFirst () {
 	cur_page = new Page();
 	file.GetPage(cur_page,0);
 	current_page_index = 0;
+	cout << "file length in pages Movefirst: " << file.GetLength()<< "  at bottom of vun Movefirst " << endl;
 
 }
 
@@ -334,8 +339,8 @@ int DBFile::sort_merge(){
 }
 
 int DBFile::GetNext (Record &fetchme) {
-	cout<<"GetNext called DBFIle.cc Getnext"<<endl;
-	cout << " file length getnext(): " << file.GetLength() << endl;
+	//cout<<"GetNext called DBFIle.cc Getnext"<<endl;
+	//cout << " file length getnext(): " << file.GetLength() << endl;
 	if(operation_state == writing){
 		if(type == heap)
 			WriteBufferToDisk();
@@ -361,7 +366,7 @@ int DBFile::GetNext (Record &fetchme) {
 }
 
 int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
-	cout << " file length GETNEXT(CNF): " << file.GetLength() << endl;
+	//cout << " file length GETNEXT(CNF): " << file.GetLength() << endl;
 	if(operation_state == writing){
 		if(type == heap)
 			WriteBufferToDisk();
