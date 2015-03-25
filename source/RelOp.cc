@@ -361,7 +361,8 @@ void DuplicateRemoval::Use_n_Pages (int n) {
 void *Run_Sum(void *arg_in){
 	cout<<"Run_Sum"<<endl;
 	thread_args_Sum *arg = (thread_args_Sum *)arg_in;
-	Record read_from_pipe;
+	//Record read_from_pipe;
+  	Record *read_from_pipe;
   	int int_sum = 0;
   	double double_sum = 0;
   	Type   res_type = Int;
@@ -370,10 +371,12 @@ void *Run_Sum(void *arg_in){
   	//bool r = 0;
   	int count = 1;
 
-  	while(arg->inPipe->Remove(&read_from_pipe)){
+  	//while(arg->inPipe->Remove(&read_from_pipe)){
+  	while(arg->inPipe->Remove(read_from_pipe)){
   		cout<< "Read from pipe count: "<< count<<"  Sum  relops.cc"<<endl;
   		count++;
-    	res_type = arg->computeMe->Apply(read_from_pipe, int_res, double_res);
+    	//res_type = arg->computeMe->Apply(read_from_pipe, int_res, double_res);
+    	res_type = arg->computeMe->Apply(*read_from_pipe, int_res, double_res);
     	if(Int == res_type)
       		int_sum += int_res;
     	else if(Double == res_type)
