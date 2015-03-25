@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <pthread.h>
 #include <time.h>
+#include <sstream>
 
 void *sort_stuff(void *arg);
 /*struct CompareRecords{
@@ -52,8 +53,13 @@ void* sort_stuff( void *arg_in){
     File file;
     char ext_file_path[300];
     srand(time(NULL));
+    ostringstream convert;
+    convert << rand()%500;
+    string random_num = convert.str();
     // write the path for where the external should be created
-    char *sorting_file = "sortingfile" + rand()%500;
+    string new_file_text = "sortingfile";
+    new_file_text.append(random_num);
+    char *sorting_file = (char *)new_file_text.c_str();
     sprintf(ext_file_path,sorting_file);
     file.Open(0,ext_file_path);
     Page buffer_page;
