@@ -363,6 +363,7 @@ void *Run_Sum(void *arg_in){
 	thread_args_Sum *arg = (thread_args_Sum *)arg_in;
 	//Record read_from_pipe;
   	Record *read_from_pipe;
+  	read_from_pipe = new Record();
   	int int_sum = 0;
   	double double_sum = 0;
   	Type   res_type = Int;
