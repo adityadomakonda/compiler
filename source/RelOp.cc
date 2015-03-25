@@ -23,7 +23,7 @@ void SelectFile::Run (DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal
 	t_in_params->inFile = &inFile;
 	//t_in_params->inPipe = NULL;
 	t_in_params->outPipe = &outPipe;
-	t_in_params->selOP = &selOp;
+	t_in_params->selOp = &selOp;
 	t_in_params->literal = &literal;
 
     //thread_args_SelectFile t_args = {&inFile, &outPipe, &selOp, &literal};
