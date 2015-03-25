@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <vector>
 
 #include "Defs.h"
 #include "ParseTree.h"
@@ -71,6 +72,12 @@ public:
 
 	// prints to the file given in argument. Same as above Print
 	void PrintToFile (Schema *mySchema, FILE *outFile);
+
+
+	int Record::numOfAttInRecord();
+
+	int Record::GetNumAtts();
+
 };
 
 #endif

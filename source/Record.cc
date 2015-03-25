@@ -524,4 +524,14 @@ void Record :: PrintToFile (Schema *mySchema, FILE *outFile) {
 }
 
 
+int Record::numOfAttInRecord()
+{
+		int att2 = *((int*)bits +1);
+		return ((att2 - sizeof(int))/sizeof(int));
 
+}
+
+int Record::GetNumAtts()
+{
+	return (((int*)bits)[1]-4)/4;
+}
