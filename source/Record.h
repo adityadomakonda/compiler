@@ -74,9 +74,9 @@ public:
 	void PrintToFile (Schema *mySchema, FILE *outFile);
 
 
-	int Record::numOfAttInRecord();
+	int numOfAttInRecord();
 
-	int Record::GetNumAtts();
+	int GetNumAtts();
 
 };
 
