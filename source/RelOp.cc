@@ -6,7 +6,7 @@ void *Run_SelectFile(void *arg_in){
 	thread_args_SelectFile *arg = (thread_args_SelectFile *)arg_in;
 	//Record *to_push = new Record();
 	Record *to_push;
-	arg->inFile->MoveFirst();
+	//arg->inFile->MoveFirst();
 	while(arg->inFile->GetNext(*to_push,*arg->selOp,*arg->literal) == 1){
 		arg->outPipe->Insert(to_push);
 		cout<<"Pushed Rec into Pipe   RelOp.cc SelectFile"<<endl;

@@ -7,7 +7,6 @@ void *Run_SelectFile(void *arg_in){
 	//Record *to_push = new Record();
 	Record *to_push;
 	arg->inFile->MoveFirst();
-	cout << " file length: " << arg->inFile->file.GetLength() << endl;
 	while(arg->inFile->GetNext(*to_push,*arg->selOp,*arg->literal) == 1){
 		arg->outPipe->Insert(to_push);
 		cout<<"Pushed Rec into Pipe   RelOp.cc SelectFile"<<endl;
