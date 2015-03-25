@@ -122,10 +122,9 @@ void q2 () {
 	P_p.Use_n_Pages (buffsz);
 
 	SF_p.Run (dbf_p, _p, cnf_p, lit_p);
-	//SF_p.WaitUntilDone ();
 	P_p.Run (_p, _out, keepMe, numAttsIn, numAttsOut);
 
-	SF_p.WaitUntilDone (); //// !!!!!!! change it bacK!!!
+	SF_p.WaitUntilDone ();
 	P_p.WaitUntilDone ();
 
 	Attribute att3[] = {IA, SA, DA};
@@ -217,6 +216,7 @@ void q4 () {
 
 // select distinct ps_suppkey from partsupp where ps_supplycost < 100.11;
 // expected output: 9996 rows
+
 void q5 () {
 
 	char *pred_ps = "(ps_supplycost < 100.11)";
@@ -252,6 +252,29 @@ void q5 () {
 	cout << " query5 finished..output written to file " << fwpath << "\n";
 }
 
+#if 0
+void q5 () {
+	char *pred_ps = "(ps_supplycost < 100.11)";
+	init_SF_ps (pred_ps, 100);
+	Project P_ps;
+		Pipe __ps (pipesz);
+		int keepMe[] = {1};
+		int numAttsIn = psAtts;
+		int numAttsOut = 1;
+	P_ps.Use_n_Pages (buffsz);
+	DuplicateRemoval D;
+		// inpipe = __ps
+		Pipe ___ps (pipesz);
+		Schema __ps_sch ("__ps", 1, &IA);
+	SF_ps.Run (dbf_ps, _ps, cnf_ps, lit_ps);
+	P_ps.Run (_ps, __ps, keepMe, numAttsIn, numAttsOut);
+	D.Run (__ps, ___ps,__ps_sch);
+	SF_ps.WaitUntilDone ();
+	P_ps.WaitUntilDone ();
+	int cnt = clear_pipe (___ps, &__ps_sch, true);
+	cout << " query5 returned " << cnt << " recs \n";
+}
+#endif
 // select sum (ps_supplycost) from supplier, partsupp 
 // where s_suppkey = ps_suppkey groupby s_nationkey;
 // expected output: 25 rows
@@ -281,13 +304,20 @@ void q6 () {
 
 	GroupBy G;
 		// _s (input pipe)
-		Pipe _out (1);
+		Pipe _out (pipesz);
 		Function func;
 			char *str_sum = "(ps_supplycost)";
 			get_cnf (str_sum, &join_sch, func);
 			func.Print ();
-			OrderMaker grp_order (&join_sch);
-	G.Use_n_Pages (1);
+
+			OrderMaker grp_order, dummy;
+			CNF cnf_pred;
+			Record literal;
+			char *groupingOn = "(s_nationkey)";
+			get_cnf (groupingOn, &join_sch, cnf_pred, literal);
+			cnf_pred.GetSortOrders(grp_order, dummy);
+
+	G.Use_n_Pages (100);
 
 	SF_ps.Run (dbf_ps, _ps, cnf_ps, lit_ps); // 161 recs qualified
 	J.Run (_s, _ps, _s_ps, cnf_p_ps, lit_p_ps);
@@ -295,13 +325,51 @@ void q6 () {
 
 	SF_ps.WaitUntilDone ();
 	J.WaitUntilDone ();
-	G.WaitUntilDone ();
 
 	Schema sum_sch ("sum_sch", 1, &DA);
 	int cnt = clear_pipe (_out, &sum_sch, true);
 	cout << " query6 returned sum for " << cnt << " groups (expected 25 groups)\n"; 
 }
-
+/*
+void q6 () {
+	cout << " query6 \n";
+	char *pred_s = "(s_suppkey = s_suppkey)";
+	init_SF_s (pred_s, 100);
+	SF_s.Run (dbf_s, _s, cnf_s, lit_s); // 10k recs qualified
+	char *pred_ps = "(ps_suppkey = ps_suppkey)";
+	init_SF_ps (pred_ps, 100);
+	Join J;
+		// left _s
+		// right _ps
+		Pipe _s_ps (pipesz);
+		CNF cnf_p_ps;
+		Record lit_p_ps;
+		get_cnf ("(s_suppkey = ps_suppkey)", s->schema(), ps->schema(), cnf_p_ps, lit_p_ps);
+	int outAtts = sAtts + psAtts;
+	Attribute s_nationkey = {"s_nationkey", Int};
+	Attribute ps_supplycost = {"ps_supplycost", Double};
+	Attribute joinatt[] = {IA,SA,SA,s_nationkey,SA,DA,SA,IA,IA,IA,ps_supplycost,SA};
+	Schema join_sch ("join_sch", outAtts, joinatt);
+	GroupBy G;
+		// _s (input pipe)
+		Pipe _out (1);
+		Function func;
+			char *str_sum = "(ps_supplycost)";
+			get_cnf (str_sum, &join_sch, func);
+			func.Print ();
+			OrderMaker grp_order (&join_sch);
+	G.Use_n_Pages (1);
+	SF_ps.Run (dbf_ps, _ps, cnf_ps, lit_ps); // 161 recs qualified
+	J.Run (_s, _ps, _s_ps, cnf_p_ps, lit_p_ps);
+	G.Run (_s_ps, _out, grp_order, func);
+	SF_ps.WaitUntilDone ();
+	J.WaitUntilDone ();
+	G.WaitUntilDone ();
+	Schema sum_sch ("sum_sch", 1, &DA);
+	int cnt = clear_pipe (_out, &sum_sch, true);
+	cout << " query6 returned sum for " << cnt << " groups (expected 25 groups)\n"; 
+}
+*/
 void q7 () { 
 /*
 select sum(ps_supplycost)
@@ -309,9 +377,7 @@ from part, supplier, partsupp
 where p_partkey = ps_partkey and
 s_suppkey = ps_suppkey and
 s_acctbal > 2500;
-
 ANSWER: 274251601.96 (5.91 sec)
-
 possible plan:
 	SF(s_acctbal > 2500) => _s
 	SF(p_partkey = p_partkey) => _p 
@@ -324,7 +390,6 @@ possible plan:
 		S(s_supplycost) => __s_p_ps
 	On __s_p_ps:
 		W(__s_p_ps)
-
 Legend:
 SF : select all records that satisfy some simple cnf expr over recs from in_file 
 SP: same as SF but recs come from in_pipe
@@ -344,10 +409,7 @@ select l_orderkey, l_partkey, l_suppkey
 from lineitem
 where l_returnflag = 'R' and l_discount < 0.04 or 
 l_returnflag = 'R' and l_shipmode = 'MAIL';
-
 ANSWER: 671392 rows in set (29.45 sec)
-
-
 possible plan:
 	SF (l_returnflag = 'R' and ...) => _l
 	On _l:
@@ -361,7 +423,7 @@ possible plan:
 int main (int argc, char *argv[]) {
 
 	if (argc != 2) {
-		cerr << " Usage: ./test3 [1-8] \n";
+		cerr << " Usage: ./test.out [1-8] \n";
 		exit (0);
 	}
 

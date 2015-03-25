@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <pthread.h>
+#include <time.h>
 
 void *sort_stuff(void *arg);
 /*struct CompareRecords{
@@ -50,8 +51,10 @@ void* sort_stuff( void *arg_in){
     thread_args *arg = (thread_args *)arg_in;
     File file;
     char ext_file_path[300];
+    srand(time(NULL));
     // write the path for where the external should be created
-    sprintf(ext_file_path,"sortingfile.txt");
+    char *sorting_file = "sortingfile" + rand()%500;
+    sprintf(ext_file_path,sorting_file);
     file.Open(0,ext_file_path);
     Page buffer_page;
     
