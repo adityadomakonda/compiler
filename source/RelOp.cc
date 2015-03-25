@@ -91,6 +91,7 @@ void *Run_Project(void *arg_in){
 	
 	//arg->inFile->MoveFirst();
 	while(arg->inPipe->Remove(to_push) == 1){
+		cout<< "Record removed from input Pipe    Project RelOps.cc"<<endl;
 		to_push->Project(arg->keepMe, arg->numAttsOutput, arg->numAttsInput);
 		arg->outPipe->Insert(to_push);	
 	}
