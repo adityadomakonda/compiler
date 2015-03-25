@@ -35,6 +35,7 @@ void SelectFile::Run (DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal
 void SelectFile::WaitUntilDone () {
 	cout<< "Waiting for SelecFIle to join  Relops.cc"<<endl;
 	pthread_join (thread, NULL);
+	cout << "select file thread joined" << endl;
 	return;
 }
 
@@ -119,6 +120,7 @@ void Project::Run (Pipe &inPipe, Pipe &outPipe, int *keepMe, int numAttsInput, i
 void Project::WaitUntilDone () { 
 	cout<< "Waiting for Project to join  Relops.cc"<<endl;
 	pthread_join (thread, NULL);
+	cout << " Project thread joined " <<endl;
 	return;
 }
 
