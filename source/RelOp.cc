@@ -7,11 +7,13 @@ void *Run_SelectFile(void *arg_in){
 	//Record *to_push = new Record();
 	Record *to_push = new Record();
 	arg->inFile->MoveFirst();
+	int count = 0;
 	while(arg->inFile->GetNext(*to_push,*arg->selOp,*arg->literal) == 1){
 		arg->outPipe->Insert(to_push);
-		cout<<"Pushed Rec into Pipe   RelOp.cc SelectFile"<<endl;
+		count++;
+		//cout<<"Pushed Rec into Pipe   RelOp.cc SelectFile"<<endl;
 	}
-
+	cout<<"Pushed Rec: "<< count <<" into Pipe   RelOp.cc SelectFile"<<endl;
 	arg->outPipe->ShutDown();
 	cout<<"Run_SelectFile Ended"<<endl;
 }
@@ -366,8 +368,11 @@ void *Run_Sum(void *arg_in){
   	int int_res = 0; 
   	double double_res = 0;
   	//bool r = 0;
+  	int count = 1;
 
   	while(arg->inPipe->Remove(&read_from_pipe)){
+  		cout<< "Read from pipe count: "<< count<<"  Sum  relops.cc"<<endl;
+  		count++;
     	res_type = arg->computeMe->Apply(read_from_pipe, int_res, double_res);
     	if(Int == res_type)
       		int_sum += int_res;

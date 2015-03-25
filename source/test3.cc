@@ -122,10 +122,10 @@ void q2 () {
 	P_p.Use_n_Pages (buffsz);
 
 	SF_p.Run (dbf_p, _p, cnf_p, lit_p);
-	SF_p.WaitUntilDone ();
+	//SF_p.WaitUntilDone ();
 	P_p.Run (_p, _out, keepMe, numAttsIn, numAttsOut);
 
-	//SF_p.WaitUntilDone (); //// !!!!!!! change it bacK!!!
+	SF_p.WaitUntilDone (); //// !!!!!!! change it bacK!!!
 	P_p.WaitUntilDone ();
 
 	Attribute att3[] = {IA, SA, DA};
