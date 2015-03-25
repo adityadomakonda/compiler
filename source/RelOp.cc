@@ -57,8 +57,18 @@ void *Run_SelectPipe(void *arg_in){
 }
 
 void SelectPipe::Run (Pipe &inPipe, Pipe &outPipe, CNF &selOp, Record &literal) { 
-	thread_args_SelectPipe t_args = {&inPipe, &outPipe, &selOp, &literal};
-    pthread_create(&thread,NULL,Run_SelectPipe,(void *)&t_args);
+	//thread_args_SelectPipe t_args = {&inPipe, &outPipe, &selOp, &literal};
+
+	thread_args_SelectPipe *t_in_params = new (thread_args_SelectPipe);
+
+	memset(t_in_params, 0x00, sizeof(thread_args_SelectPipe));
+	t_in_params->inPipe = &inPipe;
+	//t_in_params->inPipe = NULL;
+	t_in_params->outPipe = &outPipe;
+	t_in_params->selOp = &selOp;
+	t_in_params->literal = &literal;
+
+    pthread_create(&thread,NULL,Run_SelectPipe,(void *)&t_in_params);
     return;
 }
 
@@ -87,8 +97,19 @@ void *Run_Project(void *arg_in){
 }
 
 void Project::Run (Pipe &inPipe, Pipe &outPipe, int *keepMe, int numAttsInput, int numAttsOutput) { 
-	thread_args_Project t_args = {&inPipe, &outPipe, keepMe, numAttsInput, numAttsOutput};
-    pthread_create(&thread,NULL,Run_Project,(void *)&t_args);
+	//thread_args_Project t_args = {&inPipe, &outPipe, keepMe, numAttsInput, numAttsOutput};
+
+	thread_args_Project *t_in_params = new (thread_args_Project);
+
+	memset(t_in_params, 0x00, sizeof(thread_args_Project));
+	t_in_params->inPipe = &inPipe;
+	//t_in_params->inPipe = NULL;
+	t_in_params->outPipe = &outPipe;
+	t_in_params->keepMe = keepMe;
+	t_in_params->numAttsInput = numAttsInput;
+	t_in_params->numAttsOutput = numAttsOutput;
+
+    pthread_create(&thread,NULL,Run_Project,(void *)&t_in_params);
 }
 	
 void Project::WaitUntilDone () { 
@@ -245,8 +266,20 @@ void *Run_Join(void *arg_in){
 }
 
 void Join::Run (Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp, Record &literal) { 
-	thread_args_Join t_args = {&inPipeL, &inPipeR, &outPipe, &selOp, &literal, run_length};
-    pthread_create(&thread,NULL,Run_Join,(void *)&t_args);
+	//thread_args_Join t_args = {&inPipeL, &inPipeR, &outPipe, &selOp, &literal, run_length};
+    
+	thread_args_Join *t_in_params = new (thread_args_Join);
+
+	memset(t_in_params, 0x00, sizeof(thread_args_Join));
+	t_in_params->inPipeL = &inPipeL;
+	t_in_params->inPipeR = &inPipeR;
+	//t_in_params->inPipe = NULL;
+	t_in_params->outPipe = &outPipe;
+	t_in_params->selOp = &selOp;
+	t_in_params->literal = &literal;
+	t_in_params->run_length = run_length;
+
+    pthread_create(&thread,NULL,Run_Join,(void *)&t_in_params);
 }
 
 void Join::WaitUntilDone () { 
@@ -289,8 +322,20 @@ void *Run_DuplicateRemoval(void *arg_in){
 }
 
 void DuplicateRemoval::Run (Pipe &inPipe, Pipe &outPipe, Schema &mySchema) { 
-	thread_args_DuplicateRemoval t_args = {&inPipe, &outPipe, &mySchema, run_length};
-    pthread_create(&thread,NULL,Run_DuplicateRemoval,(void *)&t_args);
+	//thread_args_DuplicateRemoval t_args = {&inPipe, &outPipe, &mySchema, run_length};
+    
+    thread_args_DuplicateRemoval *t_in_params = new (thread_args_DuplicateRemoval);
+
+	memset(t_in_params, 0x00, sizeof(thread_args_DuplicateRemoval));
+	t_in_params->inPipe = &inPipe;
+	//t_in_params->inPipeR = &inPipeR;
+	//t_in_params->inPipe = NULL;
+	t_in_params->outPipe = &outPipe;
+	t_in_params->mySchema = &mySchema;
+	t_in_params->run_length = run_length;
+	//t_in_params->literal = &literal;
+
+    pthread_create(&thread,NULL,Run_DuplicateRemoval,(void *)&t_in_params);
 }
 
 void DuplicateRemoval::WaitUntilDone () { 
@@ -349,8 +394,16 @@ void *Run_Sum(void *arg_in){
 }
 
 void Sum::Run (Pipe &inPipe, Pipe &outPipe, Function &computeMe) { 
-	thread_args_Sum t_args = {&inPipe, &outPipe, &computeMe};
-    pthread_create(&thread,NULL,Run_Sum,(void *)&t_args);
+	//thread_args_Sum t_args = {&inPipe, &outPipe, &computeMe};
+
+	thread_args_Sum *t_in_params = new (thread_args_Sum);
+
+	memset(t_in_params, 0x00, sizeof(thread_args_Sum));
+	t_in_params->inPipe = &inPipe;
+	t_in_params->outPipe = &outPipe;
+	t_in_params->computeMe = &computeMe;
+
+    pthread_create(&thread,NULL,Run_Sum,(void *)&t_in_params);
 }
 
 void Sum::WaitUntilDone () { 
@@ -475,8 +528,19 @@ void *Run_GroupBy(void *arg_in){
 }
 
 void GroupBy::Run (Pipe &inPipe, Pipe &outPipe, OrderMaker &groupAtts, Function &computeMe) { 
-	thread_args_GroupBy t_args = {&inPipe, &outPipe, &groupAtts, &computeMe, run_length};
-    pthread_create(&thread,NULL,Run_GroupBy,(void *)&t_args);
+	//thread_args_GroupBy t_args = {&inPipe, &outPipe, &groupAtts, &computeMe, run_length};
+    
+	thread_args_GroupBy *t_in_params = new (thread_args_GroupBy);
+
+	memset(t_in_params, 0x00, sizeof(thread_args_GroupBy));
+	t_in_params->inPipe = &inPipe;
+	t_in_params->outPipe = &outPipe;
+	t_in_params->groupAtts = &groupAtts;
+	t_in_params->computeMe = &computeMe;
+	t_in_params->run_length = run_length;
+	//t_in_params->literal = &literal;
+
+    pthread_create(&thread,NULL,Run_GroupBy,(void *)&t_in_params);
 }
 
 void GroupBy::WaitUntilDone () { 
@@ -503,8 +567,16 @@ void *Run_WriteOut(void *arg_in){
 }
 
 void WriteOut::Run (Pipe &inPipe, FILE *outFile, Schema &mySchema) { 
-	thread_args_WriteOut t_args = {&inPipe, outFile, &mySchema};
-    pthread_create(&thread,NULL,Run_WriteOut,(void *)&t_args);
+	//thread_args_WriteOut t_args = {&inPipe, outFile, &mySchema};
+    
+    thread_args_WriteOut *t_in_params = new (thread_args_WriteOut);
+
+	memset(t_in_params, 0x00, sizeof(thread_args_WriteOut));
+	t_in_params->inPipe = &inPipe;
+	t_in_params->outFile = outFile;
+	t_in_params->mySchema = &mySchema
+
+    pthread_create(&thread,NULL,Run_WriteOut,(void *)&t_in_params);
 }
 
 void WriteOut::WaitUntilDone () { 
