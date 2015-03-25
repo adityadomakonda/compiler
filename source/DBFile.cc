@@ -339,8 +339,8 @@ int DBFile::sort_merge(){
 }
 
 int DBFile::GetNext (Record &fetchme) {
-	cout<<"GetNext called DBFIle.cc Getnext"<<endl;
-	cout << " file length getnext(): " << file.GetLength() << endl;
+	//cout<<"GetNext called DBFIle.cc Getnext"<<endl;
+	//cout << " file length getnext(): " << file.GetLength() << endl;
 	if(operation_state == writing){
 		if(type == heap)
 			WriteBufferToDisk();
@@ -366,7 +366,7 @@ int DBFile::GetNext (Record &fetchme) {
 }
 
 int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
-	cout << " file length GETNEXT(CNF): " << file.GetLength() << endl;
+	//cout << " file length GETNEXT(CNF): " << file.GetLength() << endl;
 	if(operation_state == writing){
 		if(type == heap)
 			WriteBufferToDisk();
