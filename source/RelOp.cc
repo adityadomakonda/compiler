@@ -5,7 +5,7 @@ void *Run_SelectFile(void *arg_in){
 	cout<<"Run_SelectFile"<<endl;
 	thread_args_SelectFile *arg = (thread_args_SelectFile *)arg_in;
 	//Record *to_push = new Record();
-	Record *to_push;
+	Record *to_push = new Record();
 	arg->inFile->MoveFirst();
 	while(arg->inFile->GetNext(*to_push,*arg->selOp,*arg->literal) == 1){
 		arg->outPipe->Insert(to_push);
@@ -574,7 +574,7 @@ void WriteOut::Run (Pipe &inPipe, FILE *outFile, Schema &mySchema) {
 	memset(t_in_params, 0x00, sizeof(thread_args_WriteOut));
 	t_in_params->inPipe = &inPipe;
 	t_in_params->outFile = outFile;
-	t_in_params->mySchema = &mySchema
+	t_in_params->mySchema = &mySchema;
 
     pthread_create(&thread,NULL,Run_WriteOut,(void *)&t_in_params);
 }
