@@ -2,7 +2,7 @@
 #include <time.h>
 
 void *Run_SelectFile(void *arg_in){
-	cout<<"Run_SelectFile"<<endl;
+	cout<<"Run_SelectFile Started"<<endl;
 	thread_args_SelectFile *arg = (thread_args_SelectFile *)arg_in;
 	//Record *to_push = new Record();
 	Record *to_push = new Record();
@@ -13,6 +13,7 @@ void *Run_SelectFile(void *arg_in){
 	}
 
 	arg->outPipe->ShutDown();
+	cout<<"Run_SelectFile Ended"<<endl;
 }
 
 void SelectFile::Run (DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal) {
@@ -83,7 +84,7 @@ void SelectPipe::Use_n_Pages (int n) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 void *Run_Project(void *arg_in){
-	cout<<"Run_Project"<<endl;
+	cout<<"Run_Project Started"<<endl;
 	thread_args_Project *arg = (thread_args_Project *)arg_in;
 	//Record *to_push = new Record();
 	Record *to_push = new Record();
@@ -94,6 +95,7 @@ void *Run_Project(void *arg_in){
 		arg->outPipe->Insert(to_push);	
 	}
 	arg->outPipe->ShutDown();
+	cout<<"Run_Project Ended"<<endl;
 }
 
 void Project::Run (Pipe &inPipe, Pipe &outPipe, int *keepMe, int numAttsInput, int numAttsOutput) { 
